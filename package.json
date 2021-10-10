@@ -1,5 +1,5 @@
 {
-  "name": "md-to-pdf",
+  "name": "ezpdf",
   "version": "1.0.0",
   "description": "Easily convert markdown files to pdf",
   "type": "module",
