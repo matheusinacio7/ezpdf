@@ -36,6 +36,10 @@ async function spinBrowserAndPrint() {
   await browser.close();
 }
 
+const copyCssFile = new Promise((resolve, reject) => {
+
+});
+
 async function convertMarkdownAndCreateTempFiles(fileName) {
   const linkNode = {
     type: 'element',
@@ -79,7 +83,6 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
         properties: {
           rel: 'stylesheet',
           href: `https://fonts.googleapis.com/css2?${familySlug}&display=swap`,
-          crossorigin: '',
         },
       },
     ];
@@ -110,6 +113,10 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
           if (yamlConfigs.stylesheet) {
             head.children.push(linkNode);
           }
+
+          if (yamlConfigs.google_fonts) {
+            head.children = [...head.children, ...getGoogleFontsNodes(yamlConfigs.google_fonts)];
+          }
         });
     })
     .use(() => tree => {
@@ -123,7 +130,18 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
 
   await fs.mkdir('temp');
   await fs.writeFile('./temp/index.html', htmlFile.toString());
-  await fs.writeFile('./temp/styles.css', '');
+  if (yamlConfigs.stylesheet) {
+    await fs.copyFile(`./${yamlConfigs.stylesheet}`, './temp/styles.css');
+  }
+}
+
+async function clearTempFolder() {
+  const files = await fs.readdir('./temp');
+  files.forEach(async (fileName) => {
+    await fs.unlink(`./temp/${fileName}`);
+  });
+
+  await fs.rmdir('./temp');
 }
 
 (async () => {
@@ -133,9 +151,17 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
     throw new Error ('Must inform the name of the markdown file');
   }
 
+  // const [server] = await Promise.all([
+  //   startServer,
+  //   () => convertMarkdownAndCreateTempFiles(fileName),
+  // ]);
 
-  // const server = await startServer();
-  // await spinBrowserAndPrint();
+  await convertMarkdownAndCreateTempFiles(fileName);
 
-  // server.kill();
+  const server = await startServer();
+
+  await spinBrowserAndPrint();
+  await clearTempFolder();
+
+  server.kill();
 })();
