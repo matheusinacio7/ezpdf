@@ -15,8 +15,11 @@ import yaml from 'yaml';
 import { visit } from 'unist-util-visit';
 
 async function startServer() {
+  console.log('starting server');
   const server = cp.spawn('npx', ['http-server', './temp', '-c-1']);
   server.on('exit', (code) => console.log('Server exited with code', code));
+  server.stderr.on('data', (chunkBuffer) => console.log('Server error:', chunkBuffer.toString('utf-8')))
+  // server.stdin.on('data', (chunkBuffer) => console.log('Server output:', chunkBuffer.toString('utf-8')))
   return server;
 }
 
