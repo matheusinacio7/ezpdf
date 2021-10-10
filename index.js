@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import fs from 'fs/promises';
 import puppeteer from 'puppeteer';
 import cp from 'child_process';

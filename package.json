@@ -1,9 +1,13 @@
 {
   "name": "md-to-pdf",
   "version": "1.0.0",
+  "description": "Easily convert markdown files to pdf",
   "type": "module",
   "main": "index.js",
+  "bin": "./index.js",
   "license": "MIT",
+  "author": "Matheus \"Set\" Inacio",
+  "homepage": "",
   "scripts": {
     "parse": "node index.js"
   },
