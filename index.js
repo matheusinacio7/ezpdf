@@ -36,10 +36,6 @@ async function spinBrowserAndPrint() {
   await browser.close();
 }
 
-const copyCssFile = new Promise((resolve, reject) => {
-
-});
-
 async function convertMarkdownAndCreateTempFiles(fileName) {
   const linkNode = {
     type: 'element',
