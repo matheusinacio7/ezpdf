@@ -16,7 +16,7 @@ Substituting [filename] for the name of the markdown file you want to print as P
 
 For example:
 ```bash
-npx ezpdf mylittlefile.md
+npx ezpdf mylittlefile
 ```
 
 Will produce a file named `mylittlefile.pdf`

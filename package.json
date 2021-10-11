@@ -1,6 +1,6 @@
 {
   "name": "ezpdf",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Easily convert markdown files to pdf",
   "type": "module",
   "main": "index.js",
