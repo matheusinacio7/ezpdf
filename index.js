@@ -1,8 +1,9 @@
 #! /usr/bin/env node
 
 import fs from 'fs/promises';
-import puppeteer from 'puppeteer';
 import cp from 'child_process';
+
+import puppeteer from 'puppeteer';
 
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -11,25 +12,36 @@ import remarkRehype from 'remark-rehype';
 import rehypeDocument from 'rehype-document';
 import rehypeFormat from 'rehype-format';
 import rehypeStringify from 'rehype-stringify';
-import yaml from 'yaml';
 import { visit } from 'unist-util-visit';
 
-async function startServer() {
-  console.log('starting server');
-  const server = cp.spawn('npx', ['http-server', './temp', '-c-1']);
-  server.on('exit', (code) => console.log('Server exited with code', code));
-  server.stderr.on('data', (chunkBuffer) => console.log('Server error:', chunkBuffer.toString('utf-8')))
-  // server.stdin.on('data', (chunkBuffer) => console.log('Server output:', chunkBuffer.toString('utf-8')))
-  return server;
-}
+import yaml from 'yaml';
 
-async function spinBrowserAndPrint() {
+const startServer = () => new Promise((resolve, _) => {
+  const server = cp.spawn('npx', ['http-server', './temp', '-c-1']);
+  // server.on('exit', (code) => console.log('Server exited with code', code));
+  server.stderr.on('data', (chunkBuffer) => {
+    const serverMessage = chunkBuffer.toString('utf-8');
+    if (serverMessage.includes('OutgoingMessage.prototype._headers is deprecated')) {
+      return;
+    }
+    console.log('Server error:', serverMessage);
+  });
+  server.stdout.on('data', (chunkBuffer) => {
+    const serverMessage = chunkBuffer.toString('utf-8');
+    // console.log(`Server output:`,chunkBuffer.toString('utf-8'));
+    if (serverMessage.includes('Available on')) {
+      resolve(server);
+    }
+  });
+});
+
+async function spinBrowserAndPrint(fileName) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.goto('http://localhost:8080');
   await page.pdf({
-    path: 'test.pdf',
+    path: `${fileName}.pdf`,
     format: 'a4',
     margin: {
       top: '20px',
@@ -161,7 +173,7 @@ async function clearTempFolder() {
 
   const server = await startServer();
 
-  await spinBrowserAndPrint();
+  await spinBrowserAndPrint(fileName);
   await clearTempFolder();
 
   server.kill();
