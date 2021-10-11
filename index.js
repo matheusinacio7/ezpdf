@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 
+import path from 'path';
+import { URL } from 'url';
 import fs from 'fs/promises';
 import cp from 'child_process';
 
@@ -16,8 +18,12 @@ import { visit } from 'unist-util-visit';
 
 import yaml from 'yaml';
 
+const __dirname = new URL('.', import.meta.url).pathname;
+
+const TEMP_PATH = path.join(__dirname, 'temp');
+
 const startServer = () => new Promise((resolve, _) => {
-  const server = cp.spawn('npx', ['http-server', './temp', '-c-1']);
+  const server = cp.spawn('npx', ['http-server', TEMP_PATH, '-c-1']);
   // server.on('exit', (code) => console.log('Server exited with code', code));
   server.stderr.on('data', (chunkBuffer) => {
     const serverMessage = chunkBuffer.toString('utf-8');
@@ -142,39 +148,39 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
   const htmlFile = await processor.process(markdownContent);
 
   await fs.mkdir('temp');
-  await fs.writeFile('./temp/index.html', htmlFile.toString());
+  await fs.writeFile(path.join(TEMP_PATH, 'index.html'), htmlFile.toString());
   if (yamlConfigs.stylesheet) {
-    await fs.copyFile(`./${yamlConfigs.stylesheet}`, './temp/styles.css');
+    await fs.copyFile(`./${yamlConfigs.stylesheet}`, path.join(TEMP_PATH, 'styles.css'));
   }
 }
 
 async function clearTempFolder() {
-  const files = await fs.readdir('./temp');
+  const files = await fs.readdir(TEMP_PATH);
   files.forEach(async (fileName) => {
-    await fs.unlink(`./temp/${fileName}`);
+    await fs.unlink(path.join(TEMP_PATH, fileName));
   });
 
-  await fs.rmdir('./temp');
+  await fs.rmdir(TEMP_PATH);
 }
 
-(async () => {
-  const fileName = process.argv[2];
+// (async () => {
+//   const fileName = process.argv[2];
 
-  if (!fileName) {
-    throw new Error ('Must inform the name of the markdown file');
-  }
+//   if (!fileName) {
+//     throw new Error ('Must inform the name of the markdown file');
+//   }
 
-  // const [server] = await Promise.all([
-  //   startServer,
-  //   () => convertMarkdownAndCreateTempFiles(fileName),
-  // ]);
+//   // const [server] = await Promise.all([
+//   //   startServer,
+//   //   () => convertMarkdownAndCreateTempFiles(fileName),
+//   // ]);
 
-  await convertMarkdownAndCreateTempFiles(fileName);
+//   await convertMarkdownAndCreateTempFiles(fileName);
 
-  const server = await startServer();
+//   const server = await startServer();
 
-  await spinBrowserAndPrint(fileName);
-  await clearTempFolder();
+//   await spinBrowserAndPrint(fileName);
+//   await clearTempFolder();
 
-  server.kill();
-})();
+//   server.kill();
+// })();
