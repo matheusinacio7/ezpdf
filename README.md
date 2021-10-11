@@ -54,8 +54,8 @@ npm install -g ezpdf
 or
 
 ```bash
+yarn global add ezpdf
 ```
-!! TODO
 
 Afterwards, you can run
 
