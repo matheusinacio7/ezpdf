@@ -2,7 +2,7 @@
 
 import path from 'path';
 import { URL } from 'url';
-import fs from 'fs/promises';
+import fs from 'fs';
 import cp from 'child_process';
 
 import puppeteer from 'puppeteer';
@@ -150,24 +150,24 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
     })
     .use(rehypeStringify);
 
-  const markdownContent = await fs.readFile(path.join(CWD, `${fileName}.md`), 'utf-8');
+  const markdownContent = await fs.promises.readFile(path.join(CWD, `${fileName}.md`), 'utf-8');
 
   const htmlFile = await processor.process(markdownContent);
 
-  await fs.mkdir(TEMP_PATH);
-  await fs.writeFile(path.join(TEMP_PATH, 'index.html'), htmlFile.toString());
+  await fs.promises.mkdir(TEMP_PATH);
+  await fs.promises.writeFile(path.join(TEMP_PATH, 'index.html'), htmlFile.toString());
   if (yamlConfigs.stylesheet) {
-    await fs.copyFile(path.join(CWD, yamlConfigs.stylesheet), path.join(TEMP_PATH, 'styles.css'));
+    await fs.promises.copyFile(path.join(CWD, yamlConfigs.stylesheet), path.join(TEMP_PATH, 'styles.css'));
   }
 }
 
 async function clearTempFolder() {
-  const files = await fs.readdir(TEMP_PATH);
+  const files = await fs.promises.readdir(TEMP_PATH);
   files.forEach(async (fileName) => {
-    await fs.unlink(path.join(TEMP_PATH, fileName));
+    await fs.promises.unlink(path.join(TEMP_PATH, fileName));
   });
 
-  await fs.rmdir(TEMP_PATH);
+  await fs.promises.rmdir(TEMP_PATH);
 }
 
 (async () => {
