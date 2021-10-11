@@ -19,6 +19,7 @@ import { visit } from 'unist-util-visit';
 import yaml from 'yaml';
 
 const __dirname = new URL('.', import.meta.url).pathname;
+const CWD = process.cwd();
 
 const TEMP_PATH = path.join(__dirname, 'temp');
 
@@ -45,7 +46,13 @@ async function spinBrowserAndPrint(fileName) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  await page.goto('http://localhost:8080');
+  await page.goto(
+    'http://localhost:8080',
+    {
+      waitUntil: 'networkidle0',
+    },
+  );
+
   await page.pdf({
     path: `${fileName}.pdf`,
     format: 'a4',
@@ -143,14 +150,16 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
     })
     .use(rehypeStringify);
 
-  const markdownContent = await fs.readFile(`${fileName}.md`, 'utf-8');
+  const markdownContent = await fs.readFile(path.join(CWD, `${fileName}.md`), 'utf-8');
 
   const htmlFile = await processor.process(markdownContent);
 
-  await fs.mkdir('temp');
+  await fs.mkdir(TEMP_PATH);
   await fs.writeFile(path.join(TEMP_PATH, 'index.html'), htmlFile.toString());
+  console.log(yamlConfigs);
   if (yamlConfigs.stylesheet) {
-    await fs.copyFile(`./${yamlConfigs.stylesheet}`, path.join(TEMP_PATH, 'styles.css'));
+    console.log('got here');
+    await fs.copyFile(path.join(CWD, yamlConfigs.stylesheet), path.join(TEMP_PATH, 'styles.css'));
   }
 }
 
@@ -169,11 +178,6 @@ async function clearTempFolder() {
   if (!fileName) {
     throw new Error ('Must inform the name of the markdown file');
   }
-
-  // const [server] = await Promise.all([
-  //   startServer,
-  //   () => convertMarkdownAndCreateTempFiles(fileName),
-  // ]);
 
   await convertMarkdownAndCreateTempFiles(fileName);
 
