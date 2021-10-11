@@ -7,9 +7,13 @@
   "bin": "./index.js",
   "license": "MIT",
   "author": "Matheus \"Set\" Inacio",
-  "homepage": "",
+  "homepage": "https://github.com/heyset/ezpdf",
   "scripts": {
     "parse": "node index.js"
+  },
+  "repository": "git://github.com/heyset/ezpdf.git",
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   },
   "dependencies": {
     "http-server": "^13.0.2",
