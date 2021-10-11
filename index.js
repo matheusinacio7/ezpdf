@@ -24,7 +24,7 @@ const CWD = process.cwd();
 const TEMP_PATH = path.join(__dirname, 'temp');
 
 const startServer = () => new Promise((resolve, _) => {
-  const server = cp.spawn('npx', ['http-server', TEMP_PATH, '-c-1']);
+  const server = cp.spawn('npx', ['http-server', TEMP_PATH, '-c-1', '--no-color']);
   // server.on('exit', (code) => console.log('Server exited with code', code));
   server.stderr.on('data', (chunkBuffer) => {
     const serverMessage = chunkBuffer.toString('utf-8');
@@ -37,17 +37,18 @@ const startServer = () => new Promise((resolve, _) => {
     const serverMessage = chunkBuffer.toString('utf-8');
     // console.log(`Server output:`,chunkBuffer.toString('utf-8'));
     if (serverMessage.includes('Available on')) {
-      resolve(server);
+      const [targetUrl] = serverMessage.match(/http[s]*:\/\/[\d|\.]+:\d+/g);
+      resolve({server, targetUrl});
     }
   });
 });
 
-async function spinBrowserAndPrint(fileName) {
+async function spinBrowserAndPrint({ fileName, targetUrl }) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.goto(
-    'http://localhost:8080',
+    targetUrl,
     {
       waitUntil: 'networkidle0',
     },
@@ -179,9 +180,9 @@ async function clearTempFolder() {
 
   await convertMarkdownAndCreateTempFiles(fileName);
 
-  const server = await startServer();
+  const { server, targetUrl } = await startServer();
 
-  await spinBrowserAndPrint(fileName);
+  await spinBrowserAndPrint({ fileName, targetUrl });
   await clearTempFolder();
   console.log(`Successfully converted ${fileName}.md to ${fileName}.pdf`);
 
