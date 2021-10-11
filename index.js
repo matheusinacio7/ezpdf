@@ -156,9 +156,7 @@ async function convertMarkdownAndCreateTempFiles(fileName) {
 
   await fs.mkdir(TEMP_PATH);
   await fs.writeFile(path.join(TEMP_PATH, 'index.html'), htmlFile.toString());
-  console.log(yamlConfigs);
   if (yamlConfigs.stylesheet) {
-    console.log('got here');
     await fs.copyFile(path.join(CWD, yamlConfigs.stylesheet), path.join(TEMP_PATH, 'styles.css'));
   }
 }
@@ -185,6 +183,7 @@ async function clearTempFolder() {
 
   await spinBrowserAndPrint(fileName);
   await clearTempFolder();
+  console.log(`Successfully converted ${fileName}.md to ${fileName}.pdf`);
 
   server.kill();
 })();
