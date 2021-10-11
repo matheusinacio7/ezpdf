@@ -163,24 +163,24 @@ async function clearTempFolder() {
   await fs.rmdir(TEMP_PATH);
 }
 
-// (async () => {
-//   const fileName = process.argv[2];
+(async () => {
+  const fileName = process.argv[2];
 
-//   if (!fileName) {
-//     throw new Error ('Must inform the name of the markdown file');
-//   }
+  if (!fileName) {
+    throw new Error ('Must inform the name of the markdown file');
+  }
 
-//   // const [server] = await Promise.all([
-//   //   startServer,
-//   //   () => convertMarkdownAndCreateTempFiles(fileName),
-//   // ]);
+  // const [server] = await Promise.all([
+  //   startServer,
+  //   () => convertMarkdownAndCreateTempFiles(fileName),
+  // ]);
 
-//   await convertMarkdownAndCreateTempFiles(fileName);
+  await convertMarkdownAndCreateTempFiles(fileName);
 
-//   const server = await startServer();
+  const server = await startServer();
 
-//   await spinBrowserAndPrint(fileName);
-//   await clearTempFolder();
+  await spinBrowserAndPrint(fileName);
+  await clearTempFolder();
 
-//   server.kill();
-// })();
+  server.kill();
+})();
